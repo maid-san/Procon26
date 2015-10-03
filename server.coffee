@@ -1,8 +1,10 @@
 request = require 'request'
-url = '172.16.1.2'
+host = 'testform26.procon-online.net'
+token = '0123456789abcdef'
+url = 'http://' + host + '/quest1.txt' + '?token=' + token
 
-request url, (error, response, body) =>
+request.get url, (error, response, body) =>
     if !error && response.statusCode == 200
-        console.log JSON.parse(bode).name
+        console.log body
     else
         console.log 'error : ' + response.statusCode
