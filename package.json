@@ -1,0 +1,14 @@
+{
+  "name": "procon26",
+  "version": "1.0.0",
+  "description": "Procon26_Server",
+  "main": "server.coffee",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "request": "^2.64.0"
+  }
+}
