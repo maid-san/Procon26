@@ -19,7 +19,7 @@ postProblem = (host, token, file) =>
             token : token
             answer : file
 
-    request.post option, (erroe, response, body) =>
+    request.post option, (error, response, body) =>
         console.log if !error && response.statusCode == 200 then \
         body else 'error : ' + response.statusCode
 
