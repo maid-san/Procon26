@@ -25,7 +25,7 @@ program
   .option  '-p, --port <n>', 'designate number of port releasing', 40000
   .parse   process.argv
 
-bestscore = 1000000000 #正の無限大
+bestscore = 1024
 timeLastPosted = moment()
 
 postAnswer = (host, token, file) ->
