@@ -59,9 +59,9 @@ app.post '/answer', upload.single('ans'), (req, res) ->
   if response.isBestscore
     console.log '[System]The new Best Score!'
     bestscore = req.body.score
+    timeLastPosted = timeNewPosted
     sleep.sleep response.passOneSecond, () ->
       postAnswer HOST, TOKEN, "#{__dirname}/#{req.file.path}"
-    timeLastPosted = timeNewPosted
 
 app.get '/bestscore', (req, res) ->
   res.send bestscore : bestscore + ''

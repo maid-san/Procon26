@@ -19,6 +19,9 @@ $ coffee Server.coffee (option)
         - なし
     - 返り値
         - bestscore: 本サーバが記録している現状の最良得点
+        
+## TODO
+- 1 秒待つあたりの動作が微妙なので改善する
 
 ## 仕様書 from @jprekz
 - 問題の受信は, 競技サーバーから直接DLする
