@@ -15,6 +15,11 @@ app.use bodyParser.urlencoded extended: true
 HOST  = 'testform26.procon-online.net'
 TOKEN = '0123456789abcdef'
 
+###本番用
+HOST  = '172.16.1.2'
+TOKEN = '????????????????'
+###
+
 program
   .version '1.0.0'
   .option  '-p, --port <n>', 'designate number of port releasing', 40000
