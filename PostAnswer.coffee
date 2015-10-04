@@ -13,7 +13,7 @@ getProblem = (url) =>
 'http://' + host + '/quest1.txt' + '?token=' + token
 ###
 
-postProblem = (host, token, file) =>
+postAnswer = (host, token, file) =>
     option = 
         uri : 'http://' + host + '/answer'
         formData :

@@ -15,4 +15,4 @@
     - POST /answer (回答データ, スコア)
         - return (ハイスコアかどうか, 残り待ち時間)
     - GET /hiscore ()
-        - return (ハイスコア)
+        - return (ハイスコア)
