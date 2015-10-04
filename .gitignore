@@ -1,1 +1,3 @@
 Res/
+node_modules/
+.gitignore

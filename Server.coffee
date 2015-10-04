@@ -19,3 +19,4 @@ postAnswer = (host, token, file) =>
             answer: fs.createReadStream(__dirname + '/Res/' + file)
     request.post option, (error, response, body) =>
         console.log body + '[System]Status : ' + response.statusCode
+        
