@@ -9,8 +9,6 @@ getProblem = (url) =>
     request.get url, (error, response, body) =>
         console.log if !error && response.statusCode == 200 then \
         body else 'error : ' + response.statusCode
-
-'http://' + host + '/quest1.txt' + '?token=' + token
 ###
 
 postAnswer = (host, token, file) =>
