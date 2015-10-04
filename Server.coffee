@@ -1,11 +1,11 @@
 fs = require 'fs'
 moment = require 'moment'
 multer = require 'multer'
-express = require 'express'
 request = require 'request'
 bodyParser = require 'body-parser'
 
-app = express()
+app = require('express')()
+sleep  = require('sleep-async')()
 upload = multer dest: 'uploads/'
 
 app.use bodyParser.json extended: true
@@ -14,8 +14,8 @@ app.use bodyParser.urlencoded extended: true
 HOST  = 'testform26.procon-online.net'
 TOKEN = '0123456789abcdef'
 
-bestscore = 100000000 #正の無限大
-post_time = moment()
+bestscore = 1000000000 #正の無限大
+timeLastPosted = moment()
 
 postAnswer = (host, token, file) ->
   option =
@@ -35,18 +35,24 @@ passOneSecond = (before, after) ->
         
 app.post '/answer', upload.single('ans'), (req, res) ->
   console.log "bestscore: #{bestscore}"
+  timeNewPosted = moment()
+  console.log timeNewPosted - timeLastPosted
   response =
-    isBestscore:    isBestscore req.body.score, bestscore
-    passOneSecond : passOneSecond post_time, moment()
+    isBestscore:   isBestscore req.body.score, bestscore
+    passOneSecond: passOneSecond timeLastPosted, timeNewPosted
   res.send response
   console.log response
   console.log "score: #{req.body.score}"
   console.log 'ans: ', req.file
+
   if response.isBestscore
     console.log '[System]The new Best Score!'
     bestscore = req.body.score
-  postAnswer HOST, TOKEN, "#{__dirname}/#{req.file.path}"
-    
+    wait = if response.passOneSecond then 0 else 1000 - timeNewPosted + timeLastPosted
+    sleep.sleep wait, () ->
+      postAnswer HOST, TOKEN, "#{__dirname}/#{req.file.path}"
+    timeLastPosted = timeNewPosted
+
 app.get '/bestscore', (req, res) ->
   res.send bestscore : bestscore + ''
 
