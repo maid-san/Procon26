@@ -2,6 +2,7 @@ fs = require 'fs'
 moment = require 'moment'
 multer = require 'multer'
 request = require 'request'
+program = require 'commander'
 bodyParser = require 'body-parser'
 
 app = require('express')()
@@ -13,6 +14,11 @@ app.use bodyParser.urlencoded extended: true
 
 HOST  = 'testform26.procon-online.net'
 TOKEN = '0123456789abcdef'
+
+program
+  .version '1.0.0'
+  .option  '-p, --port <n>', 'designate number of port releasing', 40000
+  .parse   process.argv
 
 bestscore = 1000000000 #正の無限大
 timeLastPosted = moment()
@@ -55,4 +61,5 @@ app.post '/answer', upload.single('ans'), (req, res) ->
 app.get '/bestscore', (req, res) ->
   res.send bestscore : bestscore + ''
 
-app.listen process.argv[2]
+app.listen program.port, () ->
+  console.log "Running *:#{program.port}"

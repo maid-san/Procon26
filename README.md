@@ -1,3 +1,11 @@
+## Usage
+$ coffee Server.coffee (option)
+
+- option
+    - -p, --port: 解放するポート番号を指定する。指定しない場合、40000 番ポートが解放される。
+    - -V, --version: このプログラムのバージョンを表示する。
+    - -h, --help: usage 情報を表示する。
+
 ## API
 - POST /answer
     - パラメタ
