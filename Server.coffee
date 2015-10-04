@@ -31,7 +31,7 @@ isBestscore = (score, bestscore) ->
   return score < bestscore
         
 passOneSecond = (before, after) ->
-  return after - before > 1000
+  return if after - before > 1000 then 0 else after - before
         
 app.post '/answer', upload.single('ans'), (req, res) ->
   console.log "bestscore: #{bestscore}"
@@ -48,8 +48,7 @@ app.post '/answer', upload.single('ans'), (req, res) ->
   if response.isBestscore
     console.log '[System]The new Best Score!'
     bestscore = req.body.score
-    wait = if response.passOneSecond then 0 else 1000 - timeNewPosted + timeLastPosted
-    sleep.sleep wait, () ->
+    sleep.sleep response.passOneSecond, () ->
       postAnswer HOST, TOKEN, "#{__dirname}/#{req.file.path}"
     timeLastPosted = timeNewPosted
 
