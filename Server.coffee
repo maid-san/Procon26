@@ -12,6 +12,7 @@ upload = multer dest: 'uploads/'
 app.use bodyParser.json extended: true
 app.use bodyParser.urlencoded extended: true
 
+#演習用
 HOST  = 'testform26.procon-online.net'
 TOKEN = '0123456789abcdef'
 
