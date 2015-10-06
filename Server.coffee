@@ -29,12 +29,12 @@ program
 bestscore = 1024
 timeLastPosted = moment()
 
-postAnswer = (host, token, file) ->
+postAnswer = (filePath) ->
   option =
-    uri : "http://#{host}/answer"
+    uri : "http://#{HOST}/answer"
     formData :
-      token : token
-      answer: fs.createReadStream(file)
+      token : TOKEN
+      answer: fs.createReadStream(filePath)
   request.post option, (err, res, body) ->
     console.log "[System]Status : #{res.statusCode}"
     console.log body
@@ -42,16 +42,14 @@ postAnswer = (host, token, file) ->
 isBestscore = (score, bestscore) ->
   return score < bestscore
         
-passOneSecond = (before, after) ->
-  return if after - before > 1000 then 0 else after - before
+latency = (before, after) ->
+  return if after - before > 1000 then 0 else 1000 - after + before
         
 app.post '/answer', upload.single('ans'), (req, res) ->
-  console.log "bestscore: #{bestscore}"
   timeNewPosted = moment()
-  console.log timeNewPosted - timeLastPosted
   response =
-    isBestscore:   isBestscore req.body.score, bestscore
-    passOneSecond: passOneSecond timeLastPosted, timeNewPosted
+    isBestscore: isBestscore req.body.score, bestscore
+    latency: latency timeLastPosted, timeNewPosted
   res.send response
   console.log response
   console.log "score: #{req.body.score}"
@@ -61,11 +59,20 @@ app.post '/answer', upload.single('ans'), (req, res) ->
     console.log '[System]Meu Score!'
     bestscore = req.body.score
     timeLastPosted = timeNewPosted
-    sleep.sleep response.passOneSecond, () ->
-      postAnswer HOST, TOKEN, "#{__dirname}/#{req.file.path}"
+    sleep.sleep response.latency, () ->
+      postAnswer "#{__dirname}/#{req.file.path}"
 
 app.get '/bestscore', (req, res) ->
   res.send bestscore : bestscore + ''
+  
+app.get '/quest', (req, res) ->
+  uri = "http://#{HOST}/quest#{req.body.num}.txt?token=#{TOKEN}"
+  request uri, (error, response, body) ->
+    if !error && response.statusCode == 200
+      console.log body
+      res.send body
+    else
+      console.log 'error : ' + response.statusCode
 
 app.listen program.port, () ->
   console.log "Running *:#{program.port}"
