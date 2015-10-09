@@ -1,10 +1,10 @@
 fs = require 'fs'
+colors = require 'colors'
 moment = require 'moment'
 multer = require 'multer'
 request = require 'request'
 program = require 'commander'
 bodyParser = require 'body-parser'
-colors = require 'colors'
 
 app = require('express')()
 sleep  = require('sleep-async')()
