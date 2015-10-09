@@ -25,6 +25,9 @@ $ coffee Server.coffee (option)
         - num: 問題番号 e.x.) quest1.txt を受信したいならば、num=1
     - レスポンス
         - 問題のデータ
+        
+## ToDo
+- 使用した石の個数も利用しよう
 
 ## 仕様書 from @jprekz
 - 問題の受信は, 競技サーバーから直接DLする
