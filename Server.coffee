@@ -71,8 +71,8 @@ app.post '/answer', upload.single('answer'), (req, res) ->
       request.post option, (err, res, body) ->
         console.log body
         status = body.split("\r\n")[0]
-        score = body.split("\r\n")[1].split(' ')[1]
-        stone = body.split("\r\n")[2].split(' ')[1]
+        score  = body.split("\r\n")[1].split(' ')[1]
+        stone  = body.split("\r\n")[2].split(' ')[1]
         if status == 'success'
           if score != req.body.score
             console.log '[System] Request score is wrong...'
