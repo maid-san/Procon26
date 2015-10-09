@@ -13,7 +13,7 @@ $ coffee Server.coffee (option)
         - score: 回答データのスコア
     - 返り値
         - isBestscore: 送信したデータが、現状の最良得点であるかの真偽値
-        - passOneSecond: 送信したデータが、実際に競技サーバに送信されるまでの待ち時間
+        - latency: 送信したデータが、実際に競技サーバに送信されるまでの待ち時間
 - GET /bestscore
     - パラメタ
         - なし
