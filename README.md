@@ -9,16 +9,21 @@ $ coffee Server.coffee (option)
 ## API
 - POST /answer
     - パラメタ
-        - ans: 競技サーバに送信する回答データ
+        - answer: 競技サーバに送信する回答データ
         - score: 回答データのスコア
-    - 返り値
+    - レスポンス
         - isBestscore: 送信したデータが、現状の最良得点であるかの真偽値
         - latency: 送信したデータが、実際に競技サーバに送信されるまでの待ち時間
 - GET /bestscore
     - パラメタ
         - なし
-    - 返り値
+    - レスポンス
         - bestscore: 本サーバが記録している現状の最良得点
+- GET /answer
+    - パラメタ
+        - num: 問題番号 e.x.) quest1.txt を受信したいならば、num=1
+    - レスポンス
+        - 問題のデータ
         
 ## TODO
 - 1 秒待つあたりの動作が微妙なので改善する

@@ -45,7 +45,7 @@ isBestscore = (score, bestscore) ->
 latency = (before, after) ->
   return if after - before > 1000 then 0 else 1000 - after + before
         
-app.post '/answer', upload.single('ans'), (req, res) ->
+app.post '/answer', upload.single('answer'), (req, res) ->
   timeNewPosted = moment()
   response =
     isBestscore: isBestscore req.body.score, bestscore
@@ -53,10 +53,11 @@ app.post '/answer', upload.single('ans'), (req, res) ->
   res.send response
   console.log response
   console.log "score: #{req.body.score}"
-  console.log 'ans: ', req.file
+  console.log 'answer: ', req.file
 
   if response.isBestscore
     console.log '[System]Meu Score!'
+    console.log "#{__dirname}/#{req.file.path}"
     bestscore = req.body.score
     timeLastPosted = timeNewPosted
     sleep.sleep response.latency, () ->
@@ -66,7 +67,7 @@ app.get '/bestscore', (req, res) ->
   res.send bestscore : bestscore + ''
   
 app.get '/quest', (req, res) ->
-  uri = "http://#{HOST}/quest#{req.body.num}.txt?token=#{TOKEN}"
+  uri = "http://#{HOST}/quest#{req.query.num}.txt?token=#{TOKEN}"
   request uri, (error, response, body) ->
     if !error && response.statusCode == 200
       console.log body
