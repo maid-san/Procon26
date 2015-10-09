@@ -13,6 +13,9 @@ upload = multer dest: 'uploads/'
 app.use bodyParser.json extended: true
 app.use bodyParser.urlencoded extended: true
 
+CR_LF = "\r\n"
+SPACE = ' '
+
 #演習用
 HOST  = 'testform26.procon-online.net'
 TOKEN = '0123456789abcdef'
@@ -33,13 +36,13 @@ bestanswer =
 timeLastPosted = moment()
 
 isBestscore = (score, bestscore) ->
-  return score < bestscore
+  score < bestscore
   
 isLowerStone = (stone, beststone) ->
-  return stone < beststone
+  stone < beststone
         
 latency = (before, after) ->
-  return if after - before > 1000 then 0 else 1000 - after + before
+  if after - before > 1000 then 0 else 1000 - after + before
         
 app.post '/answer', upload.single('answer'), (req, res) ->
   requestedTime = moment()
@@ -70,9 +73,9 @@ app.post '/answer', upload.single('answer'), (req, res) ->
           answer: fs.createReadStream("#{__dirname}/#{req.file.path}")
       request.post option, (err, res, body) ->
         console.log body
-        status = body.split("\r\n")[0]
-        score  = body.split("\r\n")[1].split(' ')[1]
-        stone  = body.split("\r\n")[2].split(' ')[1]
+        status = body.split(CR_LF)[0]
+        score  = body.split(CR_LF)[1].split(SPACE)[1]
+        stone  = body.split(CR_LF)[2].split(SPACE)[1]
         if status == 'success'
           if score != req.body.score
             console.log '[System] Request score is wrong...'
