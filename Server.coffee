@@ -29,16 +29,6 @@ program
 bestscore = 1024
 timeLastPosted = moment()
 
-postAnswer = (filePath) ->
-  option =
-    uri : "http://#{HOST}/answer"
-    formData :
-      token : TOKEN
-      answer: fs.createReadStream(filePath)
-  request.post option, (err, res, body) ->
-    console.log "[System]Status : #{res.statusCode}"
-    console.log body
-
 isBestscore = (score, bestscore) ->
   return score < bestscore
         
@@ -52,19 +42,29 @@ app.post '/answer', upload.single('answer'), (req, res) ->
     latency: latency timeLastPosted, timeNewPosted
   res.send response
   console.log response
+  console.log "token: #{req.body.token}"
   console.log "score: #{req.body.score}"
   console.log 'answer: ', req.file
 
   if response.isBestscore
     console.log '[System]Meu Score!'
-    console.log "#{__dirname}/#{req.file.path}"
     bestscore = req.body.score
     timeLastPosted = timeNewPosted
     sleep.sleep response.latency, () ->
-      postAnswer "#{__dirname}/#{req.file.path}"
+      option =
+        uri : "http://#{HOST}/answer"
+        formData :
+          token : TOKEN
+          answer: fs.createReadStream("#{__dirname}/#{req.file.path}")
+      request.post option, (err, res, body) ->
+        console.log body
+        score = body.split("\r\n")[1].split(' ')[1]
+        if score != req.body.score
+          console.log '[System] Request score is wrong...'
+          bestscore = score
 
 app.get '/bestscore', (req, res) ->
-  res.send bestscore : bestscore + ''
+  res.send bestscore : bestscore
   
 app.get '/quest', (req, res) ->
   uri = "http://#{HOST}/quest#{req.query.num}.txt?token=#{TOKEN}"
