@@ -4,6 +4,7 @@ multer = require 'multer'
 request = require 'request'
 program = require 'commander'
 bodyParser = require 'body-parser'
+colors = require 'colors'
 
 app = require('express')()
 sleep  = require('sleep-async')()
@@ -26,30 +27,39 @@ program
   .option  '-p, --port <n>', 'designate number of port releasing', 40000
   .parse   process.argv
 
-bestscore = 1024
+bestanswer =
+  score: 1024
+  stone: 256
 timeLastPosted = moment()
 
 isBestscore = (score, bestscore) ->
   return score < bestscore
+  
+isLowerStone = (stone, beststone) ->
+  return stone < beststone
         
 latency = (before, after) ->
   return if after - before > 1000 then 0 else 1000 - after + before
         
 app.post '/answer', upload.single('answer'), (req, res) ->
-  timeRequested = moment()
+  requestedTime = moment()
   response =
-    isBestscore: isBestscore req.body.score, bestdata.score
-    latency: latency timeLastPosted, timeRequested
+    isBestscore : isBestscore  req.body.score, bestanswer.score
+    isLowerStone: isLowerStone req.body.stone, bestanswer.stone
+    latency: latency timeLastPosted, requestedTime
   res.send response
   console.log response
-  console.log "token: #{req.body.token}"
+  console.log "token: #{req.body.token}".green
   console.log "score: #{req.body.score}"
-  console.log 'answer: ', req.file
+  console.log "stone: #{req.body.stone}"
+  #console.log 'answer: ', req.file
 
-  if response.isBestscore
-    console.log '[System]Meu Score!'
-    bestscore = req.body.score
-    timeLastPosted = timeRequested
+  if response.isBestscore  ||
+     response.isLowerStone && req.body.score == bestanswer.score
+    console.log '[System]Meu Answer!'.red.bold
+    bestanswer.score = req.body.score
+    bestanswer.stone = req.body.stone
+    timeLastPosted = requestedTime
     sleep.sleep response.latency, () ->
       option =
         uri: "http://#{HOST}/answer"
@@ -59,12 +69,20 @@ app.post '/answer', upload.single('answer'), (req, res) ->
       request.post option, (err, res, body) ->
         console.log body
         score = body.split("\r\n")[1].split(' ')[1]
+        stone = body.split("\r\n")[2].split(' ')[1]
         if score != req.body.score
           console.log '[System] Request score is wrong...'
-          bestscore = score
+          bestanswer.score = score
+        if stone != req.body.stone
+          console.log '[System] Request stone is wrong...'
+          bestanswer.stone = stone
+        console.log "bestanswer: score: #{bestanswer.score},".yellow.bold,
+                                "stone: #{bestanswer.stone}" .yellow.bold
 
-app.get '/bestscore', (req, res) ->
-  res.send bestscore: bestscore
+app.get '/bestanswer', (req, res) ->
+  console.log "bestanswer: score: #{bestanswer.score},".yellow.bold,
+                          "stone: #{bestanswer.stone}" .yellow.bold
+  res.send score: bestanswer.score, stone: bestanswer.stone
   
 app.get '/quest', (req, res) ->
   uri = "http://#{HOST}/quest#{req.query.num}.txt?token=#{TOKEN}"

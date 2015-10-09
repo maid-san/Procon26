@@ -1,5 +1,5 @@
 ## Usage
-$ coffee Server.coffee (option)
+    $ coffee Server.coffee (option)
 
 - option
     - -p, --port: 解放するポート番号を指定する。指定しない場合、40000 番ポートが解放される。
@@ -11,23 +11,36 @@ $ coffee Server.coffee (option)
     - パラメタ
         - answer: 競技サーバに送信する回答データ
         - score: 回答データのスコア
+        - stone: 回答データで使用した石の数
         - token: 回答者の名前(チームトークンではありません)
     - レスポンス
         - isBestscore: 送信したデータが、現状の最良得点であるかの真偽値
+        - isLowerStone: 送信したデータで使用した石が、  現状の最良回答のそれよりも少ないかどうかの真偽値
         - latency: 送信したデータが、実際に競技サーバに送信されるまでの待ち時間
-- GET /bestscore
+    - curl での例
+            $ curl 'http://IP_Address:40000/answer' -F 'answer=@ans.txt' \
+            -F 'score=180' -F 'stone=1' -F 'token=homomaid'
+- GET /bestanswer
     - パラメタ
         - なし
     - レスポンス
-        - bestscore: 本サーバが記録している現状の最良得点
+        - score: 本サーバが記録している最良回答の得点
+        - stone: 本サーバが記録している最良回答が使用した石の数
+    - curl での例
+            $ curl 'http://IP_Address:40000/bestanswer'
 - GET /quest
     - パラメタ
         - num: 問題番号 e.x.) quest1.txt を受信したいならば、num=1
     - レスポンス
         - 問題のデータ
+    - curl での例
+            $ curl 'http://IP_Address:40000/quest?num=1'
         
 ## ToDo
 - 使用した石の個数も利用しよう
+- POST条件
+    - 現状最良スコアよりも良いスコア
+    - 現状最良スコアと同点 かつ 使用した石の数が少ない
 
 ## 仕様書 from @jprekz
 - 問題の受信は, 競技サーバーから直接DLする
