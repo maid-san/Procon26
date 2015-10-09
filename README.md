@@ -18,6 +18,7 @@
         - isLowerStone: 送信したデータで使用した石が、  現状の最良回答のそれよりも少ないかどうかの真偽値
         - latency: 送信したデータが、実際に競技サーバに送信されるまでの待ち時間
     - curl での例
+            
             $ curl 'http://IP_Address:40000/answer' -F 'answer=@ans.txt' \
             -F 'score=180' -F 'stone=1' -F 'token=homomaid'
 - GET /bestanswer
@@ -27,6 +28,7 @@
         - score: 本サーバが記録している最良回答の得点
         - stone: 本サーバが記録している最良回答が使用した石の数
     - curl での例
+            
             $ curl 'http://IP_Address:40000/bestanswer'
 - GET /quest
     - パラメタ
@@ -34,6 +36,7 @@
     - レスポンス
         - 問題のデータ
     - curl での例
+            
             $ curl 'http://IP_Address:40000/quest?num=1'
         
 ## ToDo
