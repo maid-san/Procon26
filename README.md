@@ -20,7 +20,7 @@ $ coffee Server.coffee (option)
         - なし
     - レスポンス
         - bestscore: 本サーバが記録している現状の最良得点
-- GET /answer
+- GET /quest
     - パラメタ
         - num: 問題番号 e.x.) quest1.txt を受信したいならば、num=1
     - レスポンス
