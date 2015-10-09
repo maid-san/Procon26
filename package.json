@@ -2,7 +2,7 @@
   "name": "procon26",
   "version": "1.0.0",
   "description": "Procon26_Server",
-  "main": "server.coffee",
+  "main": "Server.coffee",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },

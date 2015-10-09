@@ -14,7 +14,6 @@ app.use bodyParser.json extended: true
 app.use bodyParser.urlencoded extended: true
 
 CR_LF = "\r\n"
-SPACE = ' '
 
 #演習用
 HOST  = 'testform26.procon-online.net'
@@ -26,7 +25,7 @@ TOKEN = '????????????????'
 ###
 
 program
-  .version '1.0.0'
+  .version require('./package.json').version
   .option  '-p, --port <n>', 'designate number of port releasing', 40000
   .parse   process.argv
 
@@ -65,7 +64,7 @@ app.post '/answer', upload.single('answer'), (req, res) ->
     bestanswer.score = req.body.score
     bestanswer.stone = req.body.stone
     timeLastPosted = requestedTime
-    sleep.sleep response.latency, () ->
+    sleep.sleep response.latency ->
       option =
         uri: "http://#{HOST}/answer"
         formData:
@@ -73,15 +72,16 @@ app.post '/answer', upload.single('answer'), (req, res) ->
           answer: fs.createReadStream("#{__dirname}/#{req.file.path}")
       request.post option, (err, res, body) ->
         console.log body
-        status = body.split(CR_LF)[0]
-        score  = body.split(CR_LF)[1].split(SPACE)[1]
-        stone  = body.split(CR_LF)[2].split(SPACE)[1]
+        lines  = body.split(CR_LF)
+        status = lines[0]
+        score  = lines[1].split(' ')[1]
+        stone  = lines[2].split(' ')[1]
         if status == 'success'
           if score != req.body.score
-            console.log '[System] Request score is wrong...'
+            console.error '[Warning] Request score is wrong...'
             bestanswer.score = score if score != undefined
           if stone != req.body.stone
-            console.log '[System] Request stone is wrong...'
+            console.error '[Warning] Request stone is wrong...'
             bestanswer.stone = stone if stone != undefined
         else
           bestanswer = oldanswer
@@ -102,5 +102,5 @@ app.get '/quest', (req, res) ->
     else
       console.log 'error : ' + response.statusCode
 
-app.listen program.port, () ->
+app.listen program.port ->
   console.log "Running *:#{program.port}"
