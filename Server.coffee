@@ -36,13 +36,13 @@ timeLastPosted = moment()
 
 isBestscore = (score, bestscore) ->
   score < bestscore
-  
+
 isLowerStone = (stone, beststone) ->
   stone < beststone
-        
+
 latency = (before, after) ->
   if after - before > 1000 then 0 else 1000 - after + before
-        
+
 app.post '/answer', upload.single('answer'), (req, res) ->
   requestedTime = moment()
   response =
@@ -64,7 +64,7 @@ app.post '/answer', upload.single('answer'), (req, res) ->
     bestanswer.score = req.body.score
     bestanswer.stone = req.body.stone
     timeLastPosted = requestedTime
-    sleep.sleep response.latency ->
+    sleep.sleep response.latency, ->
       option =
         uri: "http://#{HOST}/answer"
         formData:
@@ -92,7 +92,7 @@ app.get '/bestanswer', (req, res) ->
   console.log "bestanswer: score: #{bestanswer.score},".yellow.bold,
                           "stone: #{bestanswer.stone}" .yellow.bold
   res.send score: bestanswer.score, stone: bestanswer.stone
-  
+
 app.get '/quest', (req, res) ->
   uri = "http://#{HOST}/quest#{req.query.num}.txt?token=#{TOKEN}"
   request uri, (error, response, body) ->
@@ -102,5 +102,5 @@ app.get '/quest', (req, res) ->
     else
       console.log 'error : ' + response.statusCode
 
-app.listen program.port ->
+app.listen program.port, ->
   console.log "Running *:#{program.port}"
