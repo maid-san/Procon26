@@ -52,11 +52,13 @@ app.post '/answer', upload.single('answer'), (req, res) ->
   console.log "token: #{req.body.token}".green
   console.log "score: #{req.body.score}"
   console.log "stone: #{req.body.stone}"
-  #console.log 'answer: ', req.file
 
   if response.isBestscore  ||
      response.isLowerStone && req.body.score == bestanswer.score
     console.log '[System]Meu Answer!'.red.bold
+    oldanswer =
+      score: bestanswer.score
+      stone: bestanswer.stone
     bestanswer.score = req.body.score
     bestanswer.stone = req.body.stone
     timeLastPosted = requestedTime
@@ -68,14 +70,18 @@ app.post '/answer', upload.single('answer'), (req, res) ->
           answer: fs.createReadStream("#{__dirname}/#{req.file.path}")
       request.post option, (err, res, body) ->
         console.log body
+        status = body.split("\r\n")[0]
         score = body.split("\r\n")[1].split(' ')[1]
         stone = body.split("\r\n")[2].split(' ')[1]
-        if score != req.body.score
-          console.log '[System] Request score is wrong...'
-          bestanswer.score = score
-        if stone != req.body.stone
-          console.log '[System] Request stone is wrong...'
-          bestanswer.stone = stone
+        if status == 'success'
+          if score != req.body.score
+            console.log '[System] Request score is wrong...'
+            bestanswer.score = score if score != undefined
+          if stone != req.body.stone
+            console.log '[System] Request stone is wrong...'
+            bestanswer.stone = stone if stone != undefined
+        else
+          bestanswer = oldanswer
         console.log "bestanswer: score: #{bestanswer.score},".yellow.bold,
                                 "stone: #{bestanswer.stone}" .yellow.bold
 
