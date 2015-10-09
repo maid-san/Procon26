@@ -36,10 +36,10 @@ latency = (before, after) ->
   return if after - before > 1000 then 0 else 1000 - after + before
         
 app.post '/answer', upload.single('answer'), (req, res) ->
-  timeNewPosted = moment()
+  timeRequested = moment()
   response =
-    isBestscore: isBestscore req.body.score, bestscore
-    latency: latency timeLastPosted, timeNewPosted
+    isBestscore: isBestscore req.body.score, bestdata.score
+    latency: latency timeLastPosted, timeRequested
   res.send response
   console.log response
   console.log "token: #{req.body.token}"
@@ -49,11 +49,11 @@ app.post '/answer', upload.single('answer'), (req, res) ->
   if response.isBestscore
     console.log '[System]Meu Score!'
     bestscore = req.body.score
-    timeLastPosted = timeNewPosted
+    timeLastPosted = timeRequested
     sleep.sleep response.latency, () ->
       option =
-        uri : "http://#{HOST}/answer"
-        formData :
+        uri: "http://#{HOST}/answer"
+        formData:
           token : TOKEN
           answer: fs.createReadStream("#{__dirname}/#{req.file.path}")
       request.post option, (err, res, body) ->
@@ -64,7 +64,7 @@ app.post '/answer', upload.single('answer'), (req, res) ->
           bestscore = score
 
 app.get '/bestscore', (req, res) ->
-  res.send bestscore : bestscore
+  res.send bestscore: bestscore
   
 app.get '/quest', (req, res) ->
   uri = "http://#{HOST}/quest#{req.query.num}.txt?token=#{TOKEN}"
