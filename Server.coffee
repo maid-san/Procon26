@@ -45,8 +45,6 @@ latency = (before, after) ->
 
 app.post '/answer', upload.single('answer'), (req, res) ->
   timeRequested = moment()
-  console.log "[System]timeLastPosted: #{timeLastPosted._d}"
-  console.log "[System]timeRequested : #{timeRequested._d}"
   response =
     isBestscore : isBestscore  req.body.score, bestanswer.score
     isLowerStone: isLowerStone req.body.stone, bestanswer.stone
@@ -55,7 +53,9 @@ app.post '/answer', upload.single('answer'), (req, res) ->
   console.log "token: #{req.body.token}".green
   console.log "[System]score: #{req.body.score}"
   console.log "[System]stone: #{req.body.stone}"
-  console.log "#{response}\n"
+  console.log "[System]latency: #{response.latency}"
+  console.log "[System]timeLastPosted: #{timeLastPosted._d}"
+  console.log "[System]timeRequested : #{timeRequested._d}\n"
 
   if response.isBestscore ||
      response.isLowerStone && req.body.score == bestanswer.score
@@ -71,14 +71,14 @@ app.post '/answer', upload.single('answer'), (req, res) ->
         console.log body
         match  = body.match(REG_EXP)
         status = match[0]
-        score  = match[1] - 0
-        stone  = match[2] - 0
+        score  = Number(match[1])
+        stone  = Number(match[2])
         if status == 'success'
           bestanswer.score = score
           bestanswer.stone = stone
-          if score != req.body.score - 0
+          if score != Number(req.body.score)
             console.error '[Warning] Request score is wrong...'
-          if stone != req.body.stone - 0
+          if stone != Number(req.body.stone)
             console.error '[Warning] Request stone is wrong...'
         console.log "bestanswer: score: #{bestanswer.score},".yellow.bold,
                                 "stone: #{bestanswer.stone}" .yellow.bold, '\n'
