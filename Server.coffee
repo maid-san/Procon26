@@ -13,7 +13,7 @@ upload = multer dest: 'uploads/'
 app.use bodyParser.json extended: true
 app.use bodyParser.urlencoded extended: true
 
-CR_LF = "\r\n"
+REG_EXP = /(^.+)|(\d+)/g
 
 #演習用
 HOST  = 'testform26.procon-online.net'
@@ -21,7 +21,7 @@ TOKEN = '0123456789abcdef'
 
 ###本番用
 HOST  = '172.16.1.2'
-TOKEN = '????????????????'
+TOKEN = '1f261bf2056249d7'
 ###
 
 program
@@ -72,10 +72,11 @@ app.post '/answer', upload.single('answer'), (req, res) ->
           answer: fs.createReadStream("#{__dirname}/#{req.file.path}")
       request.post option, (err, res, body) ->
         console.log body
-        lines  = body.split(CR_LF)
-        status = lines[0]
-        score  = lines[1].split(' ')[1]
-        stone  = lines[2].split(' ')[1]
+        match  = body.match(REG_EXP)
+        status = match[0]
+        score  = match[1]
+        stone  = match[2]
+        console.log status, score, stone
         if status == 'success'
           if score != req.body.score
             console.error '[Warning] Request score is wrong...'
