@@ -41,29 +41,26 @@ isLowerStone = (stone, beststone) ->
   stone < beststone
 
 latency = (before, after) ->
-  if after - before > 1000 then 0 else 1000 - after + before
+  if after - before > 1000 then 0 else 10000 - after + before
 
 app.post '/answer', upload.single('answer'), (req, res) ->
-  requestedTime = moment()
+  timeRequested = moment()
+  console.log "[System]timeLastPosted: #{timeLastPosted._d}"
+  console.log "[System]timeRequested : #{timeRequested._d}"
   response =
     isBestscore : isBestscore  req.body.score, bestanswer.score
     isLowerStone: isLowerStone req.body.stone, bestanswer.stone
-    latency: latency timeLastPosted, requestedTime
+    latency: latency timeLastPosted, timeRequested
   res.send response
-  console.log response
   console.log "token: #{req.body.token}".green
-  console.log "score: #{req.body.score}"
-  console.log "stone: #{req.body.stone}"
+  console.log "[System]score: #{req.body.score}"
+  console.log "[System]stone: #{req.body.stone}"
+  console.log "#{response}\n"
 
-  if response.isBestscore  ||
+  if response.isBestscore ||
      response.isLowerStone && req.body.score == bestanswer.score
-    console.log '[System]Meu Answer!'.red.bold
-    oldanswer =
-      score: bestanswer.score
-      stone: bestanswer.stone
-    bestanswer.score = req.body.score
-    bestanswer.stone = req.body.stone
-    timeLastPosted = requestedTime
+    timeLastPosted = timeRequested
+    console.log '[System]Meu Answer!\n'.red.bold
     sleep.sleep response.latency, ->
       option =
         uri: "http://#{HOST}/answer"
@@ -74,20 +71,17 @@ app.post '/answer', upload.single('answer'), (req, res) ->
         console.log body
         match  = body.match(REG_EXP)
         status = match[0]
-        score  = match[1]
-        stone  = match[2]
-        console.log status, score, stone
+        score  = match[1] - 0
+        stone  = match[2] - 0
         if status == 'success'
-          if score != req.body.score
+          bestanswer.score = score
+          bestanswer.stone = stone
+          if score != req.body.score - 0
             console.error '[Warning] Request score is wrong...'
-            bestanswer.score = score if score != undefined
-          if stone != req.body.stone
+          if stone != req.body.stone - 0
             console.error '[Warning] Request stone is wrong...'
-            bestanswer.stone = stone if stone != undefined
-        else
-          bestanswer = oldanswer
         console.log "bestanswer: score: #{bestanswer.score},".yellow.bold,
-                                "stone: #{bestanswer.stone}" .yellow.bold
+                                "stone: #{bestanswer.stone}" .yellow.bold, '\n'
 
 app.get '/bestanswer', (req, res) ->
   console.log "bestanswer: score: #{bestanswer.score},".yellow.bold,
