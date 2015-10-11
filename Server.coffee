@@ -27,6 +27,7 @@ TOKEN = '1f261bf2056249d7'
 program
   .version require('./package.json').version
   .option  '-p, --port <n>', 'designate number of port releasing', 40000
+  .option  '-s, --stable [boolean]', 'switch count timing', true
   .parse   process.argv
 
 bestanswer =
@@ -41,7 +42,7 @@ isLowerStone = (stone, beststone) ->
   stone < beststone
 
 latency = (before, after) ->
-  if after - before > 1000 then 0 else 10000 - after + before
+  if after - before > 1000 then 0 else 1000 - after + before
 
 app.post '/answer', upload.single('answer'), (req, res) ->
   timeRequested = moment()
@@ -50,6 +51,7 @@ app.post '/answer', upload.single('answer'), (req, res) ->
     isLowerStone: isLowerStone req.body.stone, bestanswer.stone
     latency: latency timeLastPosted, timeRequested
   res.send response
+  console.log '[System] New POST!'.green.bold
   console.log "token: #{req.body.token}".green
   console.log "[System]score: #{req.body.score}"
   console.log "[System]stone: #{req.body.stone}"
@@ -59,29 +61,42 @@ app.post '/answer', upload.single('answer'), (req, res) ->
 
   if response.isBestscore ||
      response.isLowerStone && req.body.score == bestanswer.score
-    timeLastPosted = timeRequested
     console.log '[System]Meu Answer!\n'.red.bold
     sleep.sleep response.latency, ->
+      timeLastPosted = timeRequested unless program.stable
       option =
         uri: "http://#{HOST}/answer"
         formData:
           token : TOKEN
           answer: fs.createReadStream("#{__dirname}/#{req.file.path}")
+      oldanswer =
+        score: bestanswer.score
+        stone: bestanswer.stone
+      bestanswer.score = Number(req.body.score)
+      bestanswer.stone = Number(req.body.stone)
       request.post option, (err, res, body) ->
-        console.log body
-        match  = body.match(REG_EXP)
-        status = match[0]
-        score  = Number(match[1])
-        stone  = Number(match[2])
-        if status == 'success'
-          bestanswer.score = score
-          bestanswer.stone = stone
-          if score != Number(req.body.score)
-            console.error '[Warning] Request score is wrong...'
-          if stone != Number(req.body.stone)
-            console.error '[Warning] Request stone is wrong...'
-        console.log "bestanswer: score: #{bestanswer.score},".yellow.bold,
-                                "stone: #{bestanswer.stone}" .yellow.bold, '\n'
+        timeLastPosted = timeRequested if program.stable
+        if !err && res.statusCode == 200
+          console.log '[System] Response:'.bold
+          console.log body
+          match  = body.match(REG_EXP)
+          status = match[0]
+          score  = Number(match[1])
+          stone  = Number(match[2])
+          if status == 'success'
+            if score != Number(req.body.score)
+              console.error '[Warning] Request score is wrong...'
+              bestanswer.score = score
+            if stone != Number(req.body.stone)
+              console.error '[Warning] Request stone is wrong...'
+              bestanswer.stone = stone
+          else
+            bestanswer = oldanswer
+          console.log "bestanswer: score: #{bestanswer.score},".yellow.bold,
+                                  "stone: #{bestanswer.stone}".yellow.bold, '\n'
+        else
+          console.error "[Error] Status: #{res.statusCode}"
+          bestanswer = oldanswer
 
 app.get '/bestanswer', (req, res) ->
   console.log "bestanswer: score: #{bestanswer.score},".yellow.bold,
@@ -92,10 +107,11 @@ app.get '/quest', (req, res) ->
   uri = "http://#{HOST}/quest#{req.query.num}.txt?token=#{TOKEN}"
   request uri, (error, response, body) ->
     if !error && response.statusCode == 200
-      console.log body
+      console.log '[System] Sent quest!'.yellow
       res.send body
     else
-      console.log 'error : ' + response.statusCode
+      console.error '[Error]Status : ' + response.statusCode
 
 app.listen program.port, ->
-  console.log "Running *:#{program.port}"
+  console.log "[System]Running *:#{program.port}"
+  console.log "[System]Stable:#{program.stable}"
