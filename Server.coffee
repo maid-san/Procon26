@@ -106,8 +106,8 @@ app.get '/quest', (req, res) ->
   uri = "http://#{HOST}/quest#{req.query.num}.txt?token=#{TOKEN}"
   request uri, (error, response, body) ->
     if !error && response.statusCode == 200
-      console.log '[System] Sent quest!'.yellow
       res.send body
+      console.log '[System] Sent quest!'.yellow
     else
       console.error '[Error]Status : ' + response.statusCode
 
