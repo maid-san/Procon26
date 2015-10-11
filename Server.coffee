@@ -25,9 +25,10 @@ TOKEN = '1f261bf2056249d7'
 ###
 
 program
-  .version require('./package.json').version
-  .option  '-p, --port <n>', 'designate number of port releasing', 40000
-  .option  '-s, --stable [boolean]', 'switch count timing', true
+  .version require('./package.json').version, '-v, --version'
+  .option '-p, --port <n>', 'designate number of port releasing', 40000
+  .option '-s, --stable', 'stable-mode'
+  .option '-S, --special', 'special-mode'
   .parse   process.argv
 
 bestanswer =
@@ -60,7 +61,7 @@ app.post '/answer', upload.single('answer'), (req, res) ->
   console.log "[System]timeRequested : #{timeRequested._d}\n"
 
   if response.isBestscore ||
-     response.isLowerStone && req.body.score == bestanswer.score
+     response.isLowerStone && Number(req.body.score) == bestanswer.score
     console.log '[System]Meu Answer!\n'.red.bold
     sleep.sleep response.latency, ->
       timeLastPosted = timeRequested unless program.stable
@@ -69,11 +70,9 @@ app.post '/answer', upload.single('answer'), (req, res) ->
         formData:
           token : TOKEN
           answer: fs.createReadStream("#{__dirname}/#{req.file.path}")
-      oldanswer =
-        score: bestanswer.score
-        stone: bestanswer.stone
-      bestanswer.score = Number(req.body.score)
-      bestanswer.stone = Number(req.body.stone)
+      oldanswer = score: bestanswer.score, stone: bestanswer.stone
+      bestanswer.score = Number req.body.score
+      bestanswer.stone = Number req.body.stone
       request.post option, (err, res, body) ->
         timeLastPosted = timeRequested if program.stable
         if !err && res.statusCode == 200
@@ -81,8 +80,8 @@ app.post '/answer', upload.single('answer'), (req, res) ->
           console.log body
           match  = body.match(REG_EXP)
           status = match[0]
-          score  = Number(match[1])
-          stone  = Number(match[2])
+          score  = Number match[1]
+          stone  = Number match[2]
           if status == 'success'
             if score != Number(req.body.score)
               console.error '[Warning] Request score is wrong...'
@@ -113,5 +112,6 @@ app.get '/quest', (req, res) ->
       console.error '[Error]Status : ' + response.statusCode
 
 app.listen program.port, ->
-  console.log "[System]Running *:#{program.port}"
-  console.log "[System]Stable:#{program.stable}"
+  console.log '[System]Special-mode!'.red.bold if program.special
+  console.log '[System]Stable-mode!' .red      if program.stable
+  console.log "[System]Running *:#{program.port}\n"
