@@ -16,13 +16,12 @@ app.use bodyParser.urlencoded extended: true
 REG_EXP = /(^.+)|(\d+)/g
 
 #演習用
-HOST  = 'testform26.procon-online.net'
-TOKEN = '0123456789abcdef'
+#HOST  = 'testform26.procon-online.net'
+#TOKEN = '0123456789abcdef'
 
-###本番用
+#本番用
 HOST  = '172.16.1.2'
 TOKEN = '1f261bf2056249d7'
-###
 
 program
   .version require('./package.json').version, '-v, --version'
@@ -50,7 +49,7 @@ app.post '/answer', upload.single('answer'), (req, res) ->
   response =
     isBestscore : isBestscore  req.body.score, bestanswer.score
     isLowerStone: isLowerStone req.body.stone, bestanswer.stone
-    latency: latency timeLastPosted, timeRequested
+    latency: if program.special then 0 else latency timeLastPosted, timeRequested
   res.send response
   console.log '[System] New POST!'.green.bold
   console.log "token: #{req.body.token}".green
